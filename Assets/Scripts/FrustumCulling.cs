@@ -29,6 +29,7 @@ public class FrustumCulling : MonoBehaviour
         lowPlane = new Plane(farPlaneCorners[2], farPlaneCorners[3], nearPlaneCorners[2]);
         nearPlane = new Plane(nearPlaneCorners[0], nearPlaneCorners[1], nearPlaneCorners[2]);
         farPlane = new Plane(farPlaneCorners[0], farPlaneCorners[1], farPlaneCorners[2]);
+
         rightPlane.Flip();
         topPlane.Flip();
         nearPlane.Flip();

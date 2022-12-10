@@ -17,7 +17,6 @@ public class BSP : MonoBehaviour
     [SerializeField] private Room[] rooms;
     [SerializeField] private float lineLength;
     [SerializeField] private float iterationFreq;
-    [SerializeField] private Transform intersectionMarker;
 
     private Line[] lines = new Line[11];
 

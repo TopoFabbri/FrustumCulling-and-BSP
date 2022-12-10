@@ -18,7 +18,7 @@ public class Frustum : MonoBehaviour
     [SerializeField] private float width;
     [SerializeField] private float height;
 
-    [Header("FOV")] 
+    [Header("RENDER DISTANCE")] 
     [SerializeField] private float farPlaneDistance;
 
 

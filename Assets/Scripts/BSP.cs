@@ -1,28 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BSP : MonoBehaviour
 {
-    struct Line
+    private struct Line
     {
         public Vector3 start;
         public Vector3 dir;
         public Vector3 end;
-
-        public void Draw()
-        {
-            Debug.DrawLine(start, end);
-        }
     }
 
     [SerializeField] private Room[] rooms;
-    [SerializeField] private float lineLength;
+
+    [Header("Settings:")] [SerializeField] private float lineLength;
     [SerializeField] private float fov;
     [SerializeField] private int lineQty;
     [SerializeField] private float iterationFreq;
+    [SerializeField] private bool drawLines;
+    [SerializeField] private bool drawPoints;
+    [SerializeField] private bool drawIntersections;
 
-    private Line[] lines = new Line[11];
+    private Line[] lines;
 
     void CheckRooms()
     {
@@ -44,10 +41,17 @@ public class BSP : MonoBehaviour
 
     void CheckLine(ref Line line)
     {
-        for (int j = 1; j < lineLength; j++)
+        int pointQty = (int)(lineLength * iterationFreq);
+
+        for (int j = 1; j < pointQty; j++)
         {
-            Vector3 prevPoint = line.start + line.dir * (j - 1);
-            Vector3 point = line.start + line.dir * j;
+            Vector3 prevPoint = line.start + line.dir * ((j - 1) / iterationFreq);
+            Vector3 point = line.start + line.dir * (j / iterationFreq);
+
+            Draw.Color = Color.black;
+
+            if (drawPoints)
+                Draw.Point(point, 0.1f);
 
             int prevRoomId = CheckPoint(prevPoint);
             int roomId = CheckPoint(point);
@@ -67,13 +71,26 @@ public class BSP : MonoBehaviour
 
             Vector3 intersection = GetIntersection(prevPoint, point, prevRoomId);
 
+            Draw.Color = Color.red;
+
+            if (drawIntersections)
+                Draw.Point(intersection, .2f);
+
             if (roomId == -1)
             {
                 line.end = intersection;
                 return;
             }
 
-            if (rooms[prevRoomId].HasRayPassed(intersection)) continue;
+            if (rooms[prevRoomId].HasRayPassed(intersection))
+            {
+                Draw.Color = Color.green;
+
+                if (drawIntersections)
+                    Draw.Point(intersection, .2f);
+
+                continue;
+            }
 
             line.end = intersection;
             return;
@@ -85,8 +102,15 @@ public class BSP : MonoBehaviour
         Vector3[] points = new Vector3[10];
         Vector3 newLine = point - prevPoint;
 
+        Draw.Color = Color.black;
+
         for (int i = 0; i < points.Length; i++)
+        {
             points[i] = prevPoint + newLine.normalized * i * (newLine.magnitude / 10f);
+            
+            if (drawPoints)
+                Draw.Point(points[i], 0.1f);
+        }
 
         for (int i = 0; i < points.Length; i++)
         {
@@ -125,12 +149,12 @@ public class BSP : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
+        Gizmos.color = Color.white;
 
         Vector3 endPos = transform.position + transform.forward * lineLength - transform.right * fov / 2;
 
         lines = new Line[lineQty];
-        
+
         for (int i = 0; i < lines.Length; i++)
         {
             lines[i].start = transform.position;
@@ -139,17 +163,18 @@ public class BSP : MonoBehaviour
             lines[i].end = lines[i].start + lines[i].dir * lineLength;
         }
 
-        for (int k = 0; k < rooms.Length; k++)
+        foreach (Room room in rooms)
         {
-            rooms[k].Reset();
-            rooms[k].SetAsMain(rooms[k].PointInRoom(transform.position));
+            room.Reset();
+            room.SetAsMain(room.PointInRoom(transform.position));
         }
 
         CheckRooms();
 
-        for (int i = 0; i < lines.Length; i++)
+        if (drawLines)
         {
-            Gizmos.DrawLine(lines[i].start, lines[i].end);
+            for (int i = 0; i < lines.Length; i++)
+                Gizmos.DrawLine(lines[i].start, lines[i].end);
         }
     }
 

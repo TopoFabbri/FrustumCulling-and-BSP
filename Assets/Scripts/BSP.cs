@@ -66,7 +66,13 @@ public class BSP : MonoBehaviour
                 continue;
 
             Vector3 intersection = GetIntersection(prevPoint, point, prevRoomId);
-
+            
+            if (roomId == -1)
+            {
+                line.end = intersection;
+                return;
+            }
+            
             if (rooms[prevRoomId].HasRayPassed(intersection)) continue;
             
             line.end = intersection;

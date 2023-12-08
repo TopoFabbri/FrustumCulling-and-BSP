@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Numerics;
-using Unity.VisualScripting;
 using UnityEngine;
 using Plane = UnityEngine.Plane;
 using Quaternion = UnityEngine.Quaternion;
@@ -46,11 +42,6 @@ public class Room : MonoBehaviour
         walls[1] = new Plane(corners[1], corners[3], corners[1] + Vector3.up);
         walls[2] = new Plane(corners[2], corners[0], corners[2] + Vector3.up);
         walls[3] = new Plane(corners[3], corners[2], corners[3] + Vector3.up);
-
-        //DrawPlane(corners[0], walls[0].normal);
-        //DrawPlane(corners[1], walls[1].normal);
-        //DrawPlane(corners[2], walls[2].normal);
-        //DrawPlane(corners[3], walls[3].normal);
     }
 
     Vector3[] GetVertices()

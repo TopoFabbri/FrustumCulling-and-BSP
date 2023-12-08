@@ -7,11 +7,15 @@ public class BSP : MonoBehaviour
     struct Line
     {
         public Vector3 start;
-        public Vector3 end;
         public Vector3 dir;
+        public float length;
+        public Vector3 end;
         public int index;
 
-        public void Draw() { Debug.DrawLine(start, end); }
+        public void Draw()
+        {
+            Debug.DrawLine(start, end);
+        }
     }
 
     [SerializeField] private Room[] rooms;
@@ -20,52 +24,63 @@ public class BSP : MonoBehaviour
 
     private Line[] lines = new Line[11];
 
-    void Update()
-    {
-    }
-
     void CheckRooms()
     {
         Vector3 endPos = transform.position + transform.forward * lineLength - transform.right * 20 * 5;
 
-        //for (int i = 0; i < lines.Length; i++)
-        //{
-        //    lines[i].start = transform.position;
-        //    lines[i].end = endPos;
-        //    lines[i].dir = Vector3.Normalize(lines[i].end - lines[i].start);
-        //    endPos += transform.right * 20;
-        //}
-
         for (int i = 0; i < lines.Length; i++)
-        {
-            CheckLine(lines[i]);
-        }
+            CheckLine(ref lines[i]);
     }
 
-    void CheckLine(Line line)
+    void CheckLine(ref Line line)
     {
-        for (int i = 0; i < iterationFreq; i++)
+        for (int j = 1; j < lineLength; j++)
         {
-            for (int j = 1; j < lineLength; j++)
-            {
-                Vector3 prevPoint = line.start + line.dir * (j - 1);
-                Vector3 point = line.start + line.dir * j;
+            Vector3 prevPoint = line.start + line.dir * (j - 1);
+            Vector3 point = line.start + line.dir * j;
 
-                CheckPoint(point);
-            }
+            int prevRoomId = CheckPoint(prevPoint);
+            int roomId = CheckPoint(point);
+
+            if (prevRoomId == roomId)
+                continue;
+
+            Draw.Point(GetIntersection(prevPoint, point, prevRoomId), .5f);
+            return;
         }
     }
 
-    void CheckPoint(Vector3 point)
+    private Vector3 GetIntersection(Vector3 prevPoint, Vector3 point, int prevRoomId)
+    {
+        Vector3[] points = new Vector3[10];
+        Vector3 newLine = point - prevPoint;
+
+        for (int i = 0; i < points.Length; i++)
+            points[i] = prevPoint + newLine.normalized * i * (newLine.magnitude / 10f);
+
+        for (int i = 0; i < points.Length; i++)
+        {
+            if (CheckPoint(points[i]) == prevRoomId)
+                continue;
+
+            return points[i] - newLine.normalized * (newLine.magnitude / 10f);
+        }
+
+        return prevPoint;
+    }
+
+    int CheckPoint(Vector3 point)
     {
         for (int i = 0; i < rooms.Length; i++)
         {
-            if (IsAdjacent(rooms[i]))
-            {
-                if (rooms[i].PointInRoom(point))
-                    rooms[i].SetAsContiguous();
-            }
+            if (!IsAdjacent(rooms[i])) continue;
+            if (!rooms[i].PointInRoom(point)) continue;
+
+            rooms[i].SetAsContiguous();
+            return rooms[i].GetId();
         }
+
+        return -1;
     }
 
     public Vector3 CheckRayPlaneCollision(Vector3 a, Vector3 b, Plane currentPlane)

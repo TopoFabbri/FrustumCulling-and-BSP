@@ -27,13 +27,6 @@ public class Room : MonoBehaviour
 
     void Update()
     {
-        Vector3[] corners = GetVertices();
-
-        walls[0] = new Plane(corners[0], corners[1], corners[0] + Vector3.down);
-        walls[1] = new Plane(corners[1], corners[3], corners[1] + Vector3.down);
-        walls[2] = new Plane(corners[2], corners[0], corners[2] + Vector3.down);
-        walls[3] = new Plane(corners[3], corners[2], corners[3] + Vector3.down);
-
         if (mainRoom || isContiguous)
             ShowRoom();
         else
@@ -49,10 +42,10 @@ public class Room : MonoBehaviour
     {
         Vector3[] corners = GetVertices();
 
-        walls[0] = new Plane(corners[0], corners[1], corners[0] + Vector3.down);
-        walls[1] = new Plane(corners[1], corners[3], corners[1] + Vector3.down);
-        walls[2] = new Plane(corners[2], corners[0], corners[2] + Vector3.down);
-        walls[3] = new Plane(corners[3], corners[2], corners[3] + Vector3.down);
+        walls[0] = new Plane(corners[0], corners[1], corners[0] + Vector3.up);
+        walls[1] = new Plane(corners[1], corners[3], corners[1] + Vector3.up);
+        walls[2] = new Plane(corners[2], corners[0], corners[2] + Vector3.up);
+        walls[3] = new Plane(corners[3], corners[2], corners[3] + Vector3.up);
 
         //DrawPlane(corners[0], walls[0].normal);
         //DrawPlane(corners[1], walls[1].normal);
@@ -66,35 +59,32 @@ public class Room : MonoBehaviour
 
         Vector3[] vertices = new Vector3[4];
 
+        vertices[0] = mesh.sharedMesh.vertices[0];
+        vertices[1] = mesh.sharedMesh.vertices[0];
+        vertices[2] = mesh.sharedMesh.vertices[0];
+        vertices[3] = mesh.sharedMesh.vertices[0];
+
         // Left up vertex
         for (int i = 0; i < mesh.sharedMesh.vertices.Length; i++)
         {
-            if (mesh.sharedMesh.vertices[i].x > vertices[0].x || mesh.sharedMesh.vertices[i].y > vertices[0].y)
-                continue;
-            else
-                vertices[0] = floor.transform.TransformPoint(mesh.sharedMesh.vertices[i]);
+            if (mesh.sharedMesh.vertices[i].x < vertices[0].x || mesh.sharedMesh.vertices[i].y > vertices[0].y)
+                vertices[0] = mesh.sharedMesh.vertices[i];
+
+            // Right up vertex
+            if (mesh.sharedMesh.vertices[i].x > vertices[1].x || mesh.sharedMesh.vertices[i].y > vertices[1].y)
+                vertices[1] = mesh.sharedMesh.vertices[i];
+
+            // Left down vertex
+            if (mesh.sharedMesh.vertices[i].x < vertices[2].x || mesh.sharedMesh.vertices[i].y < vertices[2].y)
+                vertices[2] = mesh.sharedMesh.vertices[i];
+
+            // Right down vertex
+            if (mesh.sharedMesh.vertices[i].x > vertices[3].x || mesh.sharedMesh.vertices[i].y < vertices[3].y)
+                vertices[3] = mesh.sharedMesh.vertices[i];
         }
 
-        // Right up vertex
-        for (int i = 0; i < mesh.sharedMesh.vertices.Length; i++)
-        {
-            if (mesh.sharedMesh.vertices[i].x > vertices[1].x || mesh.sharedMesh.vertices[i].y < vertices[1].y)
-                vertices[1] = floor.transform.TransformPoint(mesh.sharedMesh.vertices[i]);
-        }
-
-        // Left down vertex
-        for (int i = 0; i < mesh.sharedMesh.vertices.Length; i++)
-        {
-            if (mesh.sharedMesh.vertices[i].x < vertices[2].x || mesh.sharedMesh.vertices[i].y > vertices[2].y)
-                vertices[2] = floor.transform.TransformPoint(mesh.sharedMesh.vertices[i]);
-        }
-
-        // Right down vertex
-        for (int i = 0; i < mesh.sharedMesh.vertices.Length; i++)
-        {
-            if (mesh.sharedMesh.vertices[i].x > vertices[3].x || mesh.sharedMesh.vertices[i].y > vertices[3].y)
-                vertices[3] = floor.transform.TransformPoint(mesh.sharedMesh.vertices[i]);
-        }
+        for (int i = 0; i < vertices.Length; i++)
+            vertices[i] = floor.transform.TransformPoint(vertices[i]);
 
         return vertices;
     }
@@ -120,7 +110,7 @@ public class Room : MonoBehaviour
     public void SetAsMain(bool isMain)
     {
         mainRoom = isMain;
-        
+
         if (isMain)
             ShowRoom();
     }

@@ -26,10 +26,20 @@ public class BSP : MonoBehaviour
 
     void CheckRooms()
     {
+        ResetRooms();
+
+        int[] firstContiguousIds = GetMainRoom().GetAdjs();
+
+        for (int i = 0; i < firstContiguousIds.Length; i++)
+            rooms[firstContiguousIds[i]].SetAsContiguous();
+
         Vector3 endPos = transform.position + transform.forward * lineLength - transform.right * 20 * 5;
 
         for (int i = 0; i < lines.Length; i++)
             CheckLine(ref lines[i]);
+
+        foreach (Room room in rooms)
+            room.UpdateRoom();
     }
 
     void CheckLine(ref Line line)
@@ -42,10 +52,24 @@ public class BSP : MonoBehaviour
             int prevRoomId = CheckPoint(prevPoint);
             int roomId = CheckPoint(point);
 
-            if (prevRoomId == roomId)
+            if (prevRoomId == roomId && roomId != -1)
+            {
+                rooms[roomId].ShowRoom();
+
+                foreach (int adj in rooms[roomId].GetAdjs())
+                    rooms[adj].SetAsContiguous();
+
+                continue;
+            }
+
+            if (prevRoomId == -1)
                 continue;
 
-            Draw.Point(GetIntersection(prevPoint, point, prevRoomId), .5f);
+            Vector3 intersection = GetIntersection(prevPoint, point, prevRoomId);
+
+            if (rooms[prevRoomId].HasRayPassed(intersection)) continue;
+            
+            line.end = intersection;
             return;
         }
     }
@@ -71,13 +95,12 @@ public class BSP : MonoBehaviour
 
     int CheckPoint(Vector3 point)
     {
-        for (int i = 0; i < rooms.Length; i++)
+        foreach (Room room in rooms)
         {
-            if (!IsAdjacent(rooms[i])) continue;
-            if (!rooms[i].PointInRoom(point)) continue;
+            if (!room.IsContiguous() && !room.IsMain()) continue;
+            if (!room.PointInRoom(point)) continue;
 
-            rooms[i].SetAsContiguous();
-            return rooms[i].GetId();
+            return room.GetId();
         }
 
         return -1;
@@ -155,6 +178,16 @@ public class BSP : MonoBehaviour
         for (int i = 0; i < lines.Length; i++)
         {
             Gizmos.DrawLine(lines[i].start, lines[i].end);
+        }
+    }
+
+    private void ResetRooms()
+    {
+        foreach (Room room in rooms)
+        {
+            room.HideRoom();
+            room.SetAsMain(room.PointInRoom(transform.position));
+            room.SetAsContiguous(false);
         }
     }
 }

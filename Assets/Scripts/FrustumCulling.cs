@@ -35,7 +35,7 @@ public class FrustumCulling : MonoBehaviour
         CheckObjects();
     }
 
-    public void DrawPlane(Vector3 position, Vector3 normal)
+    public static void DrawPlane(Vector3 position, Vector3 normal)
     {
         Vector3 v3;
         if (normal.normalized != Vector3.forward)

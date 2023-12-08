@@ -8,6 +8,7 @@ public class Room : MonoBehaviour
     [SerializeField] private int id;
     [SerializeField] private int[] adyId;
     [SerializeField] private GameObject floor;
+    [SerializeField] private DoorWall[] doorWalls;
 
     MeshRenderer[] mesh;
     private bool mainRoom = false;
@@ -21,13 +22,11 @@ public class Room : MonoBehaviour
         mesh = GetComponentsInChildren<MeshRenderer>();
     }
 
-    void Update()
+    public void UpdateRoom()
     {
-        if (mainRoom || isContiguous)
-            ShowRoom();
-        else
-            HideRoom();
-
+        if (mesh == null)
+            return;
+        
         for (int i = 0; i < mesh.Length; i++)
         {
             mesh[i].enabled = onSight;
@@ -111,11 +110,10 @@ public class Room : MonoBehaviour
         return mainRoom;
     }
 
-    public void SetAsContiguous()
+    public void SetAsContiguous(bool contiguous = true)
     {
         if (!mainRoom)
-            isContiguous = true;
-        ShowRoom();
+            isContiguous = contiguous;
     }
 
     public void DrawPlane(Vector3 position, Vector3 normal)
@@ -165,9 +163,17 @@ public class Room : MonoBehaviour
         return isContiguous;
     }
 
-    public bool HasRayPassed(Vector3 prev, Vector3 cur)
+    public bool HasRayPassed(Vector3 intersection)
     {
-        return true;
+        int closest = 0;
+
+        for (int i = 0; i < doorWalls.Length; i++)
+        {
+            if (Vector3.Distance(doorWalls[i].transform.position, intersection) < Vector3.Distance(doorWalls[closest].transform.position, intersection))
+                closest = i;
+        }
+
+        return doorWalls[closest].PointInDoor(intersection);
     }
 
     public void Reset()

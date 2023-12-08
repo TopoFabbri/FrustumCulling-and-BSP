@@ -51,28 +51,28 @@ public class Frustum : MonoBehaviour
 
         UpdateFov();
 
-        Gizmos.color = Color.red;
+        Draw.Color = Color.red;
 
         // Draw frustum sides
-        Gizmos.DrawLine(nearLeftUp, farLeftUp);
-        Gizmos.DrawLine(nearRightUp, farRightUp);
-        Gizmos.DrawLine(nearLeftLow, farLeftLow);
-        Gizmos.DrawLine(nearRightLow, farRightLow);
+        Draw.Line(nearLeftUp, farLeftUp);
+        Draw.Line(nearRightUp, farRightUp);
+        Draw.Line(nearLeftLow, farLeftLow);
+        Draw.Line(nearRightLow, farRightLow);
 
         // Draw near plane
-        Gizmos.DrawLine(nearLeftUp, nearRightUp);
-        Gizmos.DrawLine(nearRightUp, nearRightLow);
-        Gizmos.DrawLine(nearRightLow, nearLeftLow);
-        Gizmos.DrawLine(nearLeftLow, nearLeftUp);
+        Draw.Line(nearLeftUp, nearRightUp);
+        Draw.Line(nearRightUp, nearRightLow);
+        Draw.Line(nearRightLow, nearLeftLow);
+        Draw.Line(nearLeftLow, nearLeftUp);
 
         // Draw far plane
-        Gizmos.DrawLine(farLeftUp, farRightUp);
-        Gizmos.DrawLine(farRightUp, farRightLow);
-        Gizmos.DrawLine(farRightLow, farLeftLow);
-        Gizmos.DrawLine(farLeftLow, farLeftUp);
+        Draw.Line(farLeftUp, farRightUp);
+        Draw.Line(farRightUp, farRightLow);
+        Draw.Line(farRightLow, farLeftLow);
+        Draw.Line(farLeftLow, farLeftUp);
     }
 
-    Vector3 GetLeftUpVertex(MeshFilter plane)
+    private static Vector3 GetLeftUpVertex(MeshFilter plane)
     {
         Vector3 leftUpVertex = new Vector3(0, 0, 0);
 
@@ -87,7 +87,7 @@ public class Frustum : MonoBehaviour
         return leftUpVertex;
     }
 
-    Vector3 GetRightUpVertex(MeshFilter plane)
+    private static Vector3 GetRightUpVertex(MeshFilter plane)
     {
         Vector3 rightUpVertex = new Vector3(0, 0, 0);
 
@@ -102,7 +102,7 @@ public class Frustum : MonoBehaviour
         return rightUpVertex;
     }
 
-    Vector3 GetLeftLowVertex(MeshFilter plane)
+    private static Vector3 GetLeftLowVertex(MeshFilter plane)
     {
         Vector3 leftLowVertex = new Vector3(0, 0, 0);
 
@@ -117,7 +117,7 @@ public class Frustum : MonoBehaviour
         return leftLowVertex;
     }
 
-    Vector3 GetRightLowVertex(MeshFilter plane)
+    private Vector3 GetRightLowVertex(MeshFilter plane)
     {
         Vector3 rightLowVertex = new Vector3(0, 0, 0);
 
@@ -132,7 +132,7 @@ public class Frustum : MonoBehaviour
         return rightLowVertex;
     }
 
-    void UpdateFov()
+    private void UpdateFov()
     {
         farPlane.transform.localPosition = new Vector3(farPlane.transform.localPosition.x,
             farPlane.transform.localPosition.y, farPlaneDistance);

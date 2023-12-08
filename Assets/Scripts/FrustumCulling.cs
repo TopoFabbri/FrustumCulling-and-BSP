@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -18,7 +16,7 @@ public class FrustumCulling : MonoBehaviour
     private Plane nearPlane;
     private Plane farPlane;
 
-    void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
         farPlaneCorners = frustum.GetFarPlane();
         nearPlaneCorners = frustum.GetNearPlane();
@@ -43,23 +41,29 @@ public class FrustumCulling : MonoBehaviour
         if (normal.normalized != Vector3.forward)
             v3 = Vector3.Cross(normal, Vector3.forward).normalized * normal.magnitude;
         else
-            v3 = Vector3.Cross(normal, Vector3.up).normalized * normal.magnitude; ;
+            v3 = Vector3.Cross(normal, Vector3.up).normalized * normal.magnitude;
+        
         var corner0 = position + v3;
         var corner2 = position - v3;
         var q = Quaternion.AngleAxis(90.0f, normal);
+        
         v3 = q * v3;
+        
         var corner1 = position + v3;
         var corner3 = position - v3;
-        Debug.DrawLine(corner0, corner2, Color.green);
-        Debug.DrawLine(corner1, corner3, Color.green);
-        Debug.DrawLine(corner0, corner1, Color.green);
-        Debug.DrawLine(corner1, corner2, Color.green);
-        Debug.DrawLine(corner2, corner3, Color.green);
-        Debug.DrawLine(corner3, corner0, Color.green);
+        
+        Draw.Color = Color.green;
+        Draw.Line(corner0, corner2);
+        Draw.Line(corner1, corner3);
+        Draw.Line(corner0, corner1);
+        Draw.Line(corner1, corner2);
+        Draw.Line(corner2, corner3);
+        Draw.Line(corner3, corner0);
+        
         Debug.DrawRay(position, normal, Color.red);
     }
 
-    void CheckObjects()
+    private void CheckObjects()
     {
         for (int i = 0; i < objects.Length; i++)
         {
@@ -102,7 +106,7 @@ public class FrustumCulling : MonoBehaviour
         }
     }
 
-    bool PointInFrustum(Vector3 point)
+    private bool PointInFrustum(Vector3 point)
     {
         bool isVisible = leftPlane.GetSide(point) && rightPlane.GetSide(point) && topPlane.GetSide(point) &&
                          lowPlane.GetSide(point) && farPlane.GetSide(point) && nearPlane.GetSide(point);
@@ -110,7 +114,7 @@ public class FrustumCulling : MonoBehaviour
         return isVisible;
     }
 
-    Vector3[] GenerateBox(GameObject obj)
+    private static Vector3[] GenerateBox(GameObject obj)
     {
         Vector3[] vertices = obj.GetComponent<MeshFilter>().sharedMesh.vertices;
 
@@ -158,23 +162,23 @@ public class FrustumCulling : MonoBehaviour
         return boxVertices;
     }
 
-    void DrawBox(Vector3[] box)
+    private static void DrawBox(Vector3[] box)
     {
-        Gizmos.color = Color.blue;
+        Draw.Color = Color.blue;
 
-        Gizmos.DrawLine(box[0], box[1]);
-        Gizmos.DrawLine(box[0], box[2]);
-        Gizmos.DrawLine(box[1], box[3]);
-        Gizmos.DrawLine(box[2], box[3]);
-        Gizmos.DrawLine(box[0], box[4]);
-        Gizmos.DrawLine(box[1], box[5]);
-        Gizmos.DrawLine(box[2], box[6]);
-        Gizmos.DrawLine(box[3], box[7]);
-        Gizmos.DrawLine(box[4], box[5]);
-        Gizmos.DrawLine(box[4], box[6]);
-        Gizmos.DrawLine(box[5], box[7]);
-        Gizmos.DrawLine(box[6], box[7]);
+        Draw.Line(box[0], box[1]);
+        Draw.Line(box[0], box[2]);
+        Draw.Line(box[1], box[3]);
+        Draw.Line(box[2], box[3]);
+        Draw.Line(box[0], box[4]);
+        Draw.Line(box[1], box[5]);
+        Draw.Line(box[2], box[6]);
+        Draw.Line(box[3], box[7]);
+        Draw.Line(box[4], box[5]);
+        Draw.Line(box[4], box[6]);
+        Draw.Line(box[5], box[7]);
+        Draw.Line(box[6], box[7]);
 
-        Gizmos.color = Color.green;
+        Draw.Color = Color.green;
     }
 }

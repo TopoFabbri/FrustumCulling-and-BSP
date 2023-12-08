@@ -86,4 +86,38 @@ public class Draw : MonoBehaviour
     {
         Debug.DrawLine(start, end, Color);
     }
+    
+    /// <summary>
+    /// Draw a plane on given position
+    /// </summary>
+    /// <param name="position">Position to draw the plane</param>
+    /// <param name="normal">Normal of the plane</param>
+    public static void Plane(Vector3 position, Vector3 normal)
+    {
+        Vector3 v3;
+        if (normal.normalized != Vector3.forward)
+            v3 = Vector3.Cross(normal, Vector3.forward).normalized * normal.magnitude;
+        else
+            v3 = Vector3.Cross(normal, Vector3.up).normalized * normal.magnitude;
+        
+        var corner0 = position + v3;
+        var corner2 = position - v3;
+        var q = Quaternion.AngleAxis(90.0f, normal);
+        
+        v3 = q * v3;
+        
+        var corner1 = position + v3;
+        var corner3 = position - v3;
+        
+        Color = Color.green;
+        Line(corner0, corner2);
+        Line(corner1, corner3);
+        Line(corner0, corner1);
+        Line(corner1, corner2);
+        Line(corner2, corner3);
+        Line(corner3, corner0);
+        
+        Debug.DrawRay(position, normal, Color.red);
+    }
+
 }

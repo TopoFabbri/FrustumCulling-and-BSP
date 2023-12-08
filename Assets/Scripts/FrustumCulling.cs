@@ -35,34 +35,6 @@ public class FrustumCulling : MonoBehaviour
         CheckObjects();
     }
 
-    public static void DrawPlane(Vector3 position, Vector3 normal)
-    {
-        Vector3 v3;
-        if (normal.normalized != Vector3.forward)
-            v3 = Vector3.Cross(normal, Vector3.forward).normalized * normal.magnitude;
-        else
-            v3 = Vector3.Cross(normal, Vector3.up).normalized * normal.magnitude;
-        
-        var corner0 = position + v3;
-        var corner2 = position - v3;
-        var q = Quaternion.AngleAxis(90.0f, normal);
-        
-        v3 = q * v3;
-        
-        var corner1 = position + v3;
-        var corner3 = position - v3;
-        
-        Draw.Color = Color.green;
-        Draw.Line(corner0, corner2);
-        Draw.Line(corner1, corner3);
-        Draw.Line(corner0, corner1);
-        Draw.Line(corner1, corner2);
-        Draw.Line(corner2, corner3);
-        Draw.Line(corner3, corner0);
-        
-        Debug.DrawRay(position, normal, Color.red);
-    }
-
     private void CheckObjects()
     {
         for (int i = 0; i < objects.Length; i++)

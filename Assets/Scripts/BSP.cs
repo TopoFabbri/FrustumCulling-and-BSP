@@ -8,9 +8,7 @@ public class BSP : MonoBehaviour
     {
         public Vector3 start;
         public Vector3 dir;
-        public float length;
         public Vector3 end;
-        public int index;
 
         public void Draw()
         {
@@ -20,6 +18,8 @@ public class BSP : MonoBehaviour
 
     [SerializeField] private Room[] rooms;
     [SerializeField] private float lineLength;
+    [SerializeField] private float fov;
+    [SerializeField] private int lineQty;
     [SerializeField] private float iterationFreq;
 
     private Line[] lines = new Line[11];
@@ -66,15 +66,15 @@ public class BSP : MonoBehaviour
                 continue;
 
             Vector3 intersection = GetIntersection(prevPoint, point, prevRoomId);
-            
+
             if (roomId == -1)
             {
                 line.end = intersection;
                 return;
             }
-            
+
             if (rooms[prevRoomId].HasRayPassed(intersection)) continue;
-            
+
             line.end = intersection;
             return;
         }
@@ -112,41 +112,6 @@ public class BSP : MonoBehaviour
         return -1;
     }
 
-    public Vector3 CheckRayPlaneCollision(Vector3 a, Vector3 b, Plane currentPlane)
-    {
-        Vector3 ba = b - a;
-        float nDotA = Vector3.Dot(currentPlane.normal, a);
-        float nDotBA = Vector3.Dot(currentPlane.normal, ba);
-
-        return a + (((currentPlane.distance - nDotA) / nDotBA) * ba);
-    }
-
-    bool IsAdjacent(Room room)
-    {
-        int[] adjId = room.GetAdjs();
-
-        for (int i = 0; i < adjId.Length; i++)
-        {
-            if (rooms[adjId[i]].IsContiguous() || rooms[adjId[i]].IsMain())
-                return true;
-        }
-
-        return false;
-    }
-
-    bool CheckContiguousRoom(Room room, int id)
-    {
-        int[] adys = room.GetAdjs();
-
-        for (int i = 0; i < adys.Length; i++)
-        {
-            if (id == adys[i])
-                return true;
-        }
-
-        return false;
-    }
-
     Room GetMainRoom()
     {
         for (int i = 0; i < rooms.Length; i++)
@@ -162,15 +127,16 @@ public class BSP : MonoBehaviour
     {
         Gizmos.color = Color.red;
 
-        Vector3 endPos = transform.position + transform.forward * lineLength - transform.right * 20 * 5;
+        Vector3 endPos = transform.position + transform.forward * lineLength - transform.right * fov / 2;
 
+        lines = new Line[lineQty];
+        
         for (int i = 0; i < lines.Length; i++)
         {
             lines[i].start = transform.position;
-            lines[i].end = endPos;
+            lines[i].end = endPos + transform.right * (fov / (lines.Length - 1)) * i;
             lines[i].dir = Vector3.Normalize(lines[i].end - lines[i].start);
-            lines[i].index = i;
-            endPos += transform.right * 20;
+            lines[i].end = lines[i].start + lines[i].dir * lineLength;
         }
 
         for (int k = 0; k < rooms.Length; k++)
